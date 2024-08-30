@@ -1,0 +1,77 @@
+{% load static %}
+<html>
+<head>
+<title>E-Voting</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
+ <script LANGUAGE="Javascript" >
+function validate(){
+	var x=document.forms["f1"]["username"].value;
+	var y=document.forms["f1"]["password"].value;
+	
+	if(x == null || x==""){
+		window.alert("Username must be enter");
+		document.f1.username.focus();
+		return false;
+	}
+	if(y == null || y==""){
+		window.alert("Password must be enter");
+		document.f1.password.focus();
+		return false;
+	}
+	return true;
+}
+		
+	
+	</script>
+</head>
+<body>
+<div id="wrapper">
+	<div id="header">
+		<div id="logo">
+			<center><font size="4" color="yellow">Blockchain E-Voting Done Right: Privacy and Transparency with Public Blockchain</font></center>
+		</div>
+		<div id="slogan">
+			
+		</div>
+	</div>
+	<div id="menu">
+		<ul><center>
+	  <li><a href="{% url 'index' %}">Home</a></li>
+	  <li><a href="{% url 'Admin' %}">Admin Login</a></li>
+      <li><a href="{% url 'Login' %}">User Login</a></li>
+      <li><a href="{% url 'Register' %}">Register Here</a></li>
+			
+		</center></ul>
+<br class="clearfix" />
+				</div>
+			
+	<div id="splash">
+		<img class="pic" src="{% static 'images/investor.jpg' %}" width="870" height="230" alt="" />
+	</div>	
+			<center>
+<form name="f1" method="post" action={% url 'AdminLogin' %} OnSubmit="return validate()">
+	{% csrf_token %}<br/>
+   <h3><b>Admin Login Screen</b></h3>
+   
+	<font size="" color="black"><center>{{ data }}</center></font>
+						
+						<table align="center" width="80" >
+			 <tr><td><font size="3" color="black">Username</b></td><td><input type="text" name="username" style="font-family: Comic Sans MS" size="30"/></td></tr>
+         
+		  
+		<tr><td><font size="3" color="black">Password</b></td><td><input type="password" name="password" style="font-family: Comic Sans MS" size="30"/></td></tr>
+
+		
+		 
+			<tr><td></td><td><input type="submit" value="Login">
+			</td>
+			</table>
+			<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+				</div>	
+					
+				</div>
+				
+				
+	</body>
+</html>

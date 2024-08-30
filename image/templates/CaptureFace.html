@@ -1,0 +1,77 @@
+{% load static %}
+<!doctype html>
+
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>E-Voting</title>
+	<style type="text/css">
+		body { font-family: Helvetica, sans-serif; }
+		h2, h3 { margin-top:0; }
+		form { margin-top: 15px; }
+		form > input { margin-right: 15px; }
+		#results { float:right; margin:20px; padding:20px; border:1px solid; background:#ccc; }
+	</style>
+	<script type="text/javascript" src="{% static 'webcam.min.js' %}"></script>
+	<script language="JavaScript">
+		function take_snapshot() {
+			// take snapshot and get image data
+			Webcam.snap( function(data_uri) {
+				// display results in page
+				document.getElementById('results').innerHTML = 
+					'<h2>Here is your image:</h2>' + 
+					'<img src="'+data_uri+'"/>';
+					var request = new XMLHttpRequest();
+ request.open("GET", "http://127.0.0.1:8000/WebCam?mytext="+data_uri);
+ //window.alert(data_uri)
+ request.onreadystatechange = function() {
+ if(this.readyState === 4 && this.status === 200) {
+ 	    data = this.responseText
+		document.getElementById("sr").innerHTML = data;
+        }
+    };
+	request.send();
+					
+			} );
+		}
+
+	</script>
+</head>
+<body>
+	<div id="results">Your captured image will appear here...</div>
+	
+	<h1>E-Voting</h1>
+	<h3>Demonstrates simple 320x240 capture &amp; display</h3>
+	
+	<div id="my_camera"></div>
+	
+	<!-- First, include the Webcam.js JavaScript Library -->
+	
+	
+	<!-- Configure a few settings and attach camera -->
+	<script language="JavaScript">
+		Webcam.set({
+			width: 320,
+			height: 240,
+			image_format: 'jpeg',
+			jpeg_quality: 90
+		});
+		Webcam.attach( '#my_camera' );
+	</script>
+	
+	<!-- A button for taking snaps -->
+	<form>
+		<input type=button value="Take Snapshot" onClick="take_snapshot()">
+		<div id="sr">Server Response</div>
+	</form>
+	
+	
+
+<form  name="f1" method="post" action="{% url 'saveSignup' %}"> 
+<br/>
+			{% csrf_token %}<br/>
+<input type="submit" value="Click Here to Complete Signup Task"></input>
+</form>	
+	
+</body>
+</html>
