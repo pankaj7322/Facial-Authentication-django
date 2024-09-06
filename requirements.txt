@@ -1,0 +1,7 @@
+pillow
+django-crispy-forms
+mysqlclient
+opencv-python
+blockchain
+pyaes
+pbkdf2
