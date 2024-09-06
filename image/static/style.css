@@ -124,16 +124,6 @@ ul h4 {
 	width: 320px;
 }
 
-#footer {
-	margin: 40px 0 120px 0;
-	text-align: center;
-	color: #8C8B8B;
-}
-
-#footer a {
-	color: #8C8B8B;
-}
-
 #header {
 	height: 95px;
 	position: relative;
@@ -325,7 +315,7 @@ ul h4 {
 
 #splash {
 	margin: 0 0 0 0;
-	height: 280px;
+	min-height: 350px;
 	position: relative;
 	padding: 45px 45px 10px 45px;
 	width: 100%;
@@ -335,7 +325,11 @@ ul h4 {
 	font-weight:900;
 	line-height: 1.5;
 	font-family: Arial, Helvetica, sans-serif;
- 
+	background: #6E6E6E url(images/pic.jpg);
+
+}
+#splash h1{
+	color:white;
 }
 
 #splash .pic {
@@ -346,23 +340,24 @@ ul h4 {
 	position: relative;
 	width: 100%;
 	/* margin: 75px auto 0 auto; */
-	background: #b6babc;
 	height:auto;
 
 
 }
 #footer{
 	margin: 0;
-	position: relative;
+	position: sticky;
+	text-align: center;
+	bottom:0px;
 	width:100%;
-	height:100px;
+	height:70px;
 	background:rgb(16, 160, 227);
 }
 #footer p{
 	font-size: 24px;
 	color:white;
 	font-weight: bolder;
-	padding:40px 0px 0px 0px
+	padding:20px 0px 0px 0px
 }
 
 table {
@@ -422,11 +417,41 @@ label {
 }
 
 #form-container {
-    background-color: white;
-    padding: 30px;
+    background-color: rgb(255, 255, 255);
+    padding: 20px 35px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
-	max-width: 400px;
-	margin:20px 0px;
+	max-width: 350px;
+	/* margin:20px 0px; */
+}
+#img{
+	background-image: url(images/pic.jpg);
+}
+#profile{
+	background: white;
+}
+.table-container {
+	height: 300px;
+    margin: 0 auto; /* Centers the container */
+    padding: 10px; /* Adds some padding around the table */
+    width: 60%; /* Adjust the width of the table container */
+}
+table {
+    width: 100%; /* Table will take the full width of the container */
+    border-collapse: collapse; /* Merges table borders */
+    margin: 0 auto; /* Centers the table within the container */
+}
+
+th, td {
+    padding: 8px; /* Adds padding to table cells */
+    text-align: left; /* Aligns text to the left in table cells */
+	background: rgb(241, 230, 230);
+}
+
+th {
+    background-color: #f4f4f4; /* Background color for table headers */
+}
+.error-message{
+	color:red;
 }

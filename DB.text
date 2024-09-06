@@ -6,3 +6,4 @@ password varchar(30),
 contact varchar(12),
 email varchar(30),
 address varchar(40));
+

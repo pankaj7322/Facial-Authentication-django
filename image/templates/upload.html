@@ -8,7 +8,7 @@
  <script type="text/javascript" >
 	
 function validate(){
-	var username = document.getElementbyId("username").value;
+	var username = document.getElementById("username").value;
 	var x=document.forms["f1"]["username"].value;
 	var y=document.forms["f1"]["password"].value;
 	var c=document.forms["f1"]["contact"].value;
@@ -18,7 +18,7 @@ function validate(){
 
 	if (username.trim() === ""){
 		alert("Username must be entered");
-		document.getElementbyId('username').focus();
+		document.getElementById('username').focus();
 		return false;
 	}
 	if(x == null || x == ""){
@@ -62,10 +62,11 @@ function validate(){
 
 window.onload = function(){
 	var errorMessage = "{{ error_message|escapejs }}";
-	if (errorMessage) {
-		alert(errorMessage);
-	}
-};
+        if (errorMessage) {
+            alert(errorMessage);
+        }
+    };
+
 </script>
 </head>
 <body>
@@ -78,42 +79,40 @@ window.onload = function(){
 		<ul><center>
 	  <li><a href="{% url 'index' %}">Home</a></li>
 	  <li><a href="{% url 'Admin' %}">Admin Login</a></li>
-      <li><a href="{% url 'Login' %}">User Login</a></li>
+      {% comment %} <li><a href="{% url 'Login' %}">User Login</a></li> {% endcomment %}
       <li><a href="{% url 'Register' %}">Register Here</a></li>
+      <li><a href="#" > {{ username }} </a></li>
 			
 	</center></ul>
 <br class="clearfix" />
 				</div>
 			<center id='img'>
 			<div id="form-container">
-			<form name="f1" method="post" onsubmit="return validate()" action="{% url 'Signup' %}">
+			<form name="f1" method="post" onsubmit="return validate()" action="{% url 'doc_upload' %}" enctype = "multipart/form-data">
 				{% csrf_token %}
-				<h3 class="form-title">New User Signup</h3>
+				<h3 class="form-title">Document Upload</h3>
+                <input type="hidden" name="username" id = "username" value="{{ username }}">
 				<center><span class="error-message">{{ data }}</span></center>
 				<table align="center" width="80%">
 					<tr>
-						<td><label for="username" class="form-label" >Username</label></td>
-						<td><input type="text" name="username" id="username" class="input-field" /></td>
+						<td><label for="docname" class="form-label" >Doc Name</label></td>
+						<td><input type="text" name="docname" id="docname" class="input-field" /></td>
 					</tr>
 					<tr>
-						<td><label for="password" class="form-label">Password</label></td>
-						<td><input type="password" name="password" id="password" class="input-field" /></td>
+						<td><label for="docdesc" class="form-label">Doc Desc</label></td>
+						<td><input type="text" name="docdesc" id="password" class="input-field" /></td>
 					</tr>
 					<tr>
-						<td><label for="contact" class="form-label">Contact No</label></td>
-						<td><input type="number" name="contact" id="contact" class="input-field" /></td>
+						<td><label for="document" class="form-label">Upload Document (doc,docx,pdf,txt)</label></td>
+						<td><input type="file" name="docupload" id="docupload" class="input-field", accept= ".pdf,.doc,.docx,.txt"/></td>
 					</tr>
 					<tr>
-						<td><label for="email" class="form-label">Email ID</label></td>
-						<td><input type="email" name="email" id="email" class="input-field"  /></td>
-					</tr>
-					<tr>
-						<td><label for="address" class="form-label">Address</label></td>
-						<td><input type="text" name="address" id="address" class="input-field"  /></td>
+						<td><label for="Description" class="form-label">Encrypted</label></td>
+						<td><textarea type="text" name="text" id="text" class="input-field"/> </textarea></td>
 					</tr>
 					<tr>
 						<td></td>
-						<td><input type="submit" value="Register" class="submit-button"></td>
+						<td><input type="submit" value="Upload" class="submit-button"></td>
 					</tr>
 				</table>
 			</form>
