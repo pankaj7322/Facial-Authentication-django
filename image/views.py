@@ -44,6 +44,11 @@ def Admin(request):
     if request.method == 'GET':
        return render(request, 'Admin.html', {})
 
+def Welcome(request, username):
+    if username is None or username == '':
+        return render(request, 'regret.html', {'message', 'Username is required'})
+    return render(request, 'welcome.html', {'username':username})
+
     
 def Login(request):
     if request.method == 'GET':
@@ -121,9 +126,13 @@ def saveSignup(request):
                 return render(request, 'Register.html', context)
             else:
                 context= {'data':'Unable to detect face. Please retry'}
-                return render(request, 'Register.html', context)    
+                return render(request, 'Register.html', context)  
+        else:
+            context= {'data':'Unable to detect face. Please retry'}
+            return render(request, 'Register.html', context)  
 def getOutput(status):
     print(status)
+    
 def UserLogin(request):
     if request.method == 'POST':
         global username
@@ -216,11 +225,11 @@ def ValidateUser(request):
 
                 return render(request, 'welcome.html', context)
             else:
-                context= {'data':"abc"}
-            return render(request, 'regret.html', context)
+                context= {'data':"User not Recognised"}
+            return render(request, 'login.html', context)
         else:
             context= {'data':status}
-            return render(request, 'regret.html', context)
+            return render(request, 'login.html', context)
 
 def Profile(request):
     username = request.GET.get('username')
@@ -267,6 +276,7 @@ def Profile(request):
     # Pass the user data to the template
     context = {
         'user_data': user_data,
+        'username': username
     }
 
     return render(request, 'profile.html', context)
@@ -277,7 +287,7 @@ def upload(request):
     return render(request, 'upload.html', {'username': username})
 
 def doc_upload(request):
-    global username
+    username = request.GET.get('username', 'Noname')
     if request.method == 'POST':
         username = request.POST.get('username')
         doc_name = request.POST.get('docname')
@@ -312,17 +322,17 @@ def doc_upload(request):
                 encrypted_file.write(encrypted_file_content)
         except Exception as e:
             messages.error(request, f"An error occurred during upload or encryption: {e}")
-            return render(request, 'upload.html')
+            return render(request, 'upload.html', {'username':username})
 
         #mysql connectivity
 
         db_connection = pymysql.connect(host='127.0.0.1',port = 3306,user = 'root', password = '12345', database = 'facial_login',charset='utf8')
         db_cursor = db_connection.cursor()
 
-        sql_query = "INSERT INTO user_document(username,doc_name,doc_desc,doc_path) VALUES ('"+username+"','"+doc_name+"','"+doc_desc+"','"+file_name_path+"')"
+        sql_query = "INSERT INTO documents(username,doc_name,doc_desc,doc_path) VALUES ('"+username+"','"+doc_name+"','"+doc_desc+"','"+file_name_path+"')"
         db_cursor.execute(sql_query)
         db_connection.commit()
-    return render(request, 'done.html', {'username': username})
+    return render(request, 'upload.html', {'username': username,'message': 'Document Uploaded', 'enc': 'Ecrypt complete'})
 
 
 def encrypt_file(uploaded_file):
@@ -348,6 +358,9 @@ def adminPage(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+    else:
+        username = 'admin'
+        password = 'admin'
 
     if username == 'admin' and password == 'admin':
 
@@ -355,10 +368,7 @@ def adminPage(request):
             db_cursor = db_connection.cursor()
             sql_query = "SELECT * FROM register"
             db_cursor.execute(sql_query)
-
             rows = db_cursor.fetchall()
-        
-
             products = []
             for row in rows:
                 products.append({
@@ -374,26 +384,13 @@ def adminPage(request):
         finally:
             db_connection.close()
 
+    else:
+        return render(request, 'Admin.html',{'error':"User not found"})
+
 
 def edit_product(request):
     pass;
 
-def delete_product(request, id):
-
-    db_connection = pymysql.connect(
-    host='127.0.0.1',
-    port=3306,
-    user='root',
-    password='12345',
-    database='facial_login',
-    charset='utf8'
-    )
-    db_cursor = db_connection.cursor()
-
-    sql_query = "DELETE FROM register WHERE id = %s"
-    db_cursor.execute(sql_query, (id,))
-    db_connection.commit()
-    return redirect('adminPage.html')
 
 
 def data_upload(request):
@@ -402,7 +399,7 @@ def data_upload(request):
         db_cursor = db_connection.cursor()
         try:
             db_cursor = db_connection.cursor()
-            sql_query = "SELECT * FROM user_document"
+            sql_query = "SELECT * FROM documents"
             db_cursor.execute(sql_query)
             rows = db_cursor.fetchall()
             data_upload = []
@@ -419,13 +416,36 @@ def data_upload(request):
         finally:
             db_connection.close()
 
+def view_doc_user(request,username):
+    if request.method == "GET":
+        db_connection = pymysql.connect(host='127.0.0.1',port = 3306,user = 'root', password = '12345', database = 'facial_login',charset='utf8')
+        db_cursor = db_connection.cursor()
+        try:
+            db_cursor = db_connection.cursor()
+            sql_query = "SELECT * FROM documents  where username = %s"
+            db_cursor.execute(sql_query, (username,))
+            rows = db_cursor.fetchall()
+            data_upload = []
+            for row in rows:
+                data_upload.append({
+                    'id': row[0],
+                    'username':row[1],
+                    'doc_name':row[2],
+                    'doc_desc':row[3],
+                    'doc_path':row[4],
+                    'timestamp': row[5],
+                })
+            return render(request, 'userPage.html',{'data_upload':data_upload,'username':username})
+        finally: 
+            db_connection.close()
+
 def view_doc(request,username):
     if request.method == "GET":
         db_connection = pymysql.connect(host='127.0.0.1',port = 3306,user = 'root', password = '12345', database = 'facial_login',charset='utf8')
         db_cursor = db_connection.cursor()
         try:
             db_cursor = db_connection.cursor()
-            sql_query = "SELECT * FROM user_document  where username = %s"
+            sql_query = "SELECT * FROM documents  where username = %s"
             db_cursor.execute(sql_query, (username,))
             rows = db_cursor.fetchall()
             data_upload = []
@@ -441,6 +461,9 @@ def view_doc(request,username):
             return render(request, 'adminPage.html',{'data_upload':data_upload})
         finally: 
             db_connection.close()
+
+
+
 
 
 def download_file(request, file_name):
@@ -462,8 +485,12 @@ def download_file(request, file_name):
         print(f"Error decrypting file: {e}")
         raise Http404("Error decrypting file")
 
+    base_file_name = file_name
+    if file_name.endswith('.enc'):
+        base_file_name = file_name[:-4] 
+
     # Create an HTTP response with the decrypted content
     response = HttpResponse(decrypted_data, content_type='application/octet-stream')
-    response['Content-Disposition'] = f'attachment; filename="{file_name}"'
+    response['Content-Disposition'] = f'attachment; filename="{base_file_name}"'
 
     return response

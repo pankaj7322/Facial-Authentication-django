@@ -77,10 +77,10 @@ window.onload = function(){
 	</div>
 	<div id="menu">
 		<ul><center>
-	  <li><a href="{% url 'index' %}">Home</a></li>
-	  <li><a href="{% url 'Admin' %}">Admin Login</a></li>
-      {% comment %} <li><a href="{% url 'Login' %}">User Login</a></li> {% endcomment %}
-      <li><a href="{% url 'Register' %}">Register Here</a></li>
+	  <li><a href="{% url 'welcome' username=username %}">Home</a></li>
+	  <li><a href="{% url 'Profile' %}?username={{ username }}">View Profile</a></li>
+      <li><a href="{% url 'view_doc_user' username=username %}">View Document</a></li>
+	  <li><a href="{% url 'Login' %}"> Logout </a></li>
       <li><a href="#" > {{ username }} </a></li>
 			
 	</center></ul>
@@ -91,6 +91,7 @@ window.onload = function(){
 			<form name="f1" method="post" onsubmit="return validate()" action="{% url 'doc_upload' %}" enctype = "multipart/form-data">
 				{% csrf_token %}
 				<h3 class="form-title">Document Upload</h3>
+				<spam style="color:red"> {{ message }}</spam>
                 <input type="hidden" name="username" id = "username" value="{{ username }}">
 				<center><span class="error-message">{{ data }}</span></center>
 				<table align="center" width="80%">
@@ -108,7 +109,7 @@ window.onload = function(){
 					</tr>
 					<tr>
 						<td><label for="Description" class="form-label">Encrypted</label></td>
-						<td><textarea type="text" name="text" id="text" class="input-field"/> </textarea></td>
+						<td><textarea type="text" name="text" id="text" class="input-field"/> {{ enc }} </textarea></td>
 					</tr>
 					<tr>
 						<td></td>

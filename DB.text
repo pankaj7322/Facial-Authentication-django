@@ -7,3 +7,11 @@ contact varchar(12),
 email varchar(30),
 address varchar(40));
 
+CREATE TABLE documents (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    doc_name VARCHAR(255) NOT NULL,
+    doc_desc TEXT,
+    doc_path VARCHAR(255) NOT NULL,
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

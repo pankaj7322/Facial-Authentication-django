@@ -28,13 +28,12 @@
     </div>
 	<div id="menu">
 		<ul><center>
-			<li><a href="{% url 'index' %}">Home</a></li>
+			<li><a href="#">Home</a></li>
 			<li><a href="{% url 'Profile' %}?username={{ username }}">View Profile</a></li>
 			<li><a href="{% url 'upload' %}?username={{ username }}">Upload</a></li>
-			<li><a href="{% url 'view_doc' username=username %}"> View Document </a> </li>
+			<li><a href="{% url 'view_doc_user' username=username %}">View Document</a> </li>
 			<li><a href="{% url 'Login' %}">Logout</a></li>
 			<li><a href="#" > {{ username }} </a> </li>
-				  
 			</center>
         </ul>
 	</div>

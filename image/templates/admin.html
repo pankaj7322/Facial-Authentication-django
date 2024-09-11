@@ -43,7 +43,7 @@ function validate(){
 <form name="f1" method="post" action={% url 'adminPage' %} OnSubmit="return validate()", id = login-form>
 	{% csrf_token %}<br/>
    <h3><b>Admin Login</b></h3>
-	<font size="" color="black"><center>{{ data }}</center></font>
+	<font size="" color="Red"><center>{{ error }}</center></font>
 				 <table align="center">
 					<tr>
 						<td><label for="username">Username </label></td>

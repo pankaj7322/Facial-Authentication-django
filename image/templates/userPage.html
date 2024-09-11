@@ -28,10 +28,15 @@
     </div>
 	<div id="menu">
 		<ul><center>
-			<li><a href="{% url 'adminPage' %}">Home</a></li>
-			<li><a href="{% url 'data_upload' %}">Uploaded Data</a> </li>
-			<li><a href="{% url 'Admin' %}">Logout</a></li>
-			<li><a href="#" value='admin'> admin </a> </li>
+            {% if username %}
+			    <li><a href="{% url 'welcome' username=username %}">Home</a></li>
+            {% else %}
+                <li><a href="#">Home</a></li>
+            {% endif %}
+			<li><a href="{% url 'upload' %}?username={{ username }}">Upload</a></li>
+			<li><a href="{% url 'view_doc_user' username=username %}"> View Document </a> </li>
+			<li><a href="{% url 'Login' %}">Logout</a></li>
+            <li><a href="#">{{ username }}</a></li>
 				  
 			</center>
         </ul>
