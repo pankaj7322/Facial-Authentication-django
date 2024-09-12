@@ -315,10 +315,10 @@ ul h4 {
 
 #splash {
 	margin: 0 0 0 0;
-	min-height: 350px;
 	position: relative;
 	padding: 45px 45px 10px 45px;
 	width: 100%;
+	height: 500px;
 	background:rgb(234, 229, 229);
 	text-align: center;
 	font-size: 50px;
@@ -339,14 +339,11 @@ ul h4 {
 #wrapper {
 	position: relative;
 	width: 100%;
-	/* margin: 75px auto 0 auto; */
 	height:auto;
-
-
 }
 #footer{
 	margin: 0;
-	position: sticky;
+	position: fixed;
 	text-align: center;
 	bottom:0px;
 	width:100%;
@@ -363,6 +360,7 @@ ul h4 {
 table {
     width: 100%; /* Full width inside the container */
     border-collapse: collapse; /* Removes gaps between cells */
+	box-sizing: border-box;
 }
 td {
     padding: 10px 0; /* Adds vertical spacing */
@@ -408,24 +406,44 @@ label {
     background-color: #0056b3; /* Darker blue on hover */
 }
 
-/* Responsive Design */
+ /* Responsive Design */
 @media (max-width: 400px) {
     .form-container {
-        width: 90%; /* Responsive width on smaller screens */
-        padding: 20px;
+        width: 100%; /* Responsive width on smaller screens */
+        padding: 15px;
     }
-}
+} 
 
-#form-container {
+#form-container-login {
     background-color: rgb(255, 255, 255);
-    padding: 20px 35px;
+    padding: 10px 35px;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     width: 100%;
-	max-width: 350px;
+	max-width: 450px;
+	position: absolute;
+	left:50%;
+	top:60%;
+	transform: translate(-50%,-50%);
+
+	/* margin:20px 0px; */
+}
+#form-container-register {
+    background-color: rgb(255, 255, 255);
+    padding: 15px 35px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+	max-width: 450px;
+	position: absolute;
+	left:50%;
+	top:75%;
+	transform: translate(-50%,-50%);
+
 	/* margin:20px 0px; */
 }
 #img{
+	height:550px;
 	background-image: url(images/pic.jpg);
 }
 #profile{
@@ -454,4 +472,42 @@ th {
 }
 .error-message{
 	color:red;
+}
+#box1{
+	width:200px;
+	height:200px;
+	border:5px solid green;
+	border-radius: 10px;
+	opacity: 0.8;
+}
+
+#box2{
+	width:200px;
+	height:200px;
+	border:5px solid green;
+	opacity:0.8;
+	border-radius: 10px;
+}
+#box{
+	width:auto;
+	height: auto;
+	display: flex;
+	justify-content: space-evenly;
+}
+
+#login-form table{
+	width:100%;
+	
+}
+#login-form table tr{
+	width:100%;
+	
+}
+#logo{
+	border-radius: 100px;
+	background:rgb(108, 166, 227);
+	pointer-events: none;
+}
+#logo p{
+	margin:0;
 }

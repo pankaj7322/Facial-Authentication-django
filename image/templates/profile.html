@@ -46,8 +46,8 @@
 			<li><a href="{% url 'welcome' username=username %}">Home</a></li>
 			<li><a href="{% url 'upload' %}?username={{ username }}">Upload</a></li>
 			<li><a href="{% url 'view_doc_user' username=username %}"> View Document </a> </li>
-			<li><a href="{% url 'Login' %}">Logout</a></li>
-			<li><a href="#">{{ username }}</a></li>
+			<li><a href="{% url 'LoginDecision' %}">Logout</a></li>
+			<li id="logo"><a href="#"> {{ username }} </a> </li>
 				  
 			</center>
         </ul>
@@ -62,12 +62,14 @@
                 <th>Email</th>
                 <th>Phone no</th>
                 <th>Address </th>
+				<th>Register Through</th>
             </tr>
             <tr>
                 <td>{{ user_data.username }}</td>
                 <td>{{ user_data.email }}</td>
                 <td>{{ user_data.contact }}</td>
                 <td>{{ user_data.address }}</td>
+				<td>{{ user_data.register }}</td>
 
             </tr>
         </table>

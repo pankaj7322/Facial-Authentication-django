@@ -33,13 +33,13 @@ function validate(){
 		<ul><center>
 		<li><a href="{% url 'index' %}">Home</a></li>
 		<li><a href="{% url 'Admin' %}">Admin Login</a></li>
-		<li><a href="{% url 'Login' %}">User Login</a></li>
-		<li><a href="{% url 'Register' %}">Register Here</a></li>			
+		<li><a href="{% url 'LoginDecision' %}">User Login</a></li>
+		<li><a href="{% url 'RegisterDecision' %}">Register Here</a></li>			
 		</center></ul>
 <br class="clearfix" />
 				</div>
 			<center id = 'img'>
-<div id = 'form-container'> 
+<div id = 'form-container-login'> 
 <form name="f1" method="post" action={% url 'adminPage' %} OnSubmit="return validate()", id = login-form>
 	{% csrf_token %}<br/>
    <h3><b>Admin Login</b></h3>

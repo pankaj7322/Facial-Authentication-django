@@ -6,63 +6,71 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
 <script type="text/javascript">
-	function validate(){
+	function validate() {
 		var username = document.getElementById("username").value;
 		var password = document.forms["f1"]["password"].value;
 		var contact = document.forms["f1"]["contact"].value;
 		var email = document.forms["f1"]["email"].value;
 		var address = document.forms["f1"]["address"].value;
+		var file = document.forms["f1"]["file_upload"].files[0]; // Use files[0] to get the selected file
 	
-		// Check if username is empty
-		if (username.trim() === ""){
+		// Validate form fields
+		if (username.trim() === "") {
 			alert("Username must be entered");
 			document.getElementById('username').focus();
 			return false;
 		}
-	
-		// Check if password is empty
-		if (password.trim() === ""){
+		if (password === "") {
 			alert("Password must be entered");
-			document.getElementById('password').focus();
+			document.forms["f1"]['password'].focus();
 			return false;
 		}
-	
-		// Check if contact number is exactly 10 digits long
-		if (contact.trim() === ""){
+		if (contact.trim() === "") {
 			alert("Contact No must be entered");
 			document.getElementById('contact').focus();
 			return false;
 		}
+		// Check if contact number is exactly 10 digits
 		if (!/^\d{10}$/.test(contact)) {
 			alert("Please enter a valid 10-digit contact number");
 			document.getElementById('contact').focus();
 			return false;
 		}
-	
-		// Check if email is empty and valid
-		if (email.trim() === ""){
+		if (email.trim() === "") {
 			alert("Email ID must be entered");
 			document.getElementById('email').focus();
 			return false;
 		}
-		var filter = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		if (!filter.test(email)) {
+		var emailFilter = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		if (!emailFilter.test(email)) {
 			alert('Enter a valid email address');
 			document.getElementById('email').focus();
 			return false;
 		}
-	
-		// Check if address is empty
-		if (address.trim() === ""){
+		if (address.trim() === "") {
 			alert("Address must be entered");
 			document.getElementById('address').focus();
 			return false;
 		}
-	
+		
+		// Validate file format
+		if (file) {
+			var allowedFormats = ['image/png', 'image/jpeg', 'image/jpg'];
+			if (!allowedFormats.includes(file.type)) {
+				alert('Invalid file format. Only PNG, JPEG, and JPG are allowed.');
+				document.getElementById('file_upload').focus();
+				return false;
+			}
+		} else {
+			alert('Please upload a file.');
+			document.getElementById('file_upload').focus();
+			return false;
+		}
+		
 		return true;
 	}
 	
-	window.onload = function(){
+	window.onload = function() {
 		var errorMessage = "{{ error_message|escapejs }}";
 		if (errorMessage) {
 			alert(errorMessage);
@@ -70,7 +78,7 @@
 	};
 	</script>
 	
-	</script>	
+	
 </head>
 <body>
 <div id="wrapper">
@@ -90,9 +98,9 @@
 				</div>
 			<center id='img'>
 			<div id="form-container-register">
-			<form name="f1" method="post" onsubmit="return validate()" action="{% url 'Signup' %}">
+			<form name="f1" method="post" enctype="multipart/form-data" onsubmit="return validate()" action="{% url 'register_finger' %}">
 				{% csrf_token %}
-				<h3 class="form-title">New User Signup(facial)</h3>
+				<h3 class="form-title">New User Signup(fingerprint)</h3>
 				<center><span class="error-message">{{ data }}</span></center>
 				<table align="center" width="80%">
 					<tr>
@@ -104,7 +112,7 @@
 						<td><input type="password" name="password" id="password" class="input-field" /></td>
 					</tr>
 					<tr>
-						<td><label for="contact" class="form-label">Contact No (10 digits)</label></td>
+						<td><label for="contact" class="form-label">Contact No</label></td>
 						<td><input type="number" name="contact" id="contact" class="input-field" /></td>
 					</tr>
 					<tr>
@@ -115,6 +123,10 @@
 						<td><label for="address" class="form-label">Address</label></td>
 						<td><input type="text" name="address" id="address" class="input-field"  /></td>
 					</tr>
+                    <tr>
+                        <td><label for="file_upload" class="file_upload">Fingerprint Upload</label></td>
+                        <td><input type="file" name="file_upload" id="file_upload" accept=".jpeg, .png, .jpg" class="file_upload">
+                    </tr>
 					<tr>
 						<td></td>
 						<td><input type="submit" value="Register" class="submit-button"></td>

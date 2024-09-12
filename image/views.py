@@ -2,10 +2,12 @@ from django.shortcuts import render
 from django.template import RequestContext
 from django.contrib import messages
 from django.conf import settings
+from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 import pymysql
+import imagehash
 from urllib.parse import unquote
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseBadRequest
 from django.core.files.storage import FileSystemStorage
 import os
 from cryptography.fernet import Fernet
@@ -18,7 +20,8 @@ import numpy as np
 import base64
 import random
 from datetime import datetime
-from PIL import Image
+from scipy.spatial.distance import euclidean
+from PIL import Image, ImageEnhance, ImageOps
 
 
 # Generate a key for encryption (do this once and save the key securely)
@@ -54,9 +57,148 @@ def Login(request):
     if request.method == 'GET':
        return render(request, 'Login.html', {})
 
+def fingerLogin(request):
+    if request.method == 'GET':
+        return render(request, 'fingerLogin.html',{})
+    
+def Login_decision(request):
+    if request.method == 'GET':
+        return render(request, 'LoginDecision.html',{})
+
 def Register(request):
     if request.method == 'GET':
        return render(request, 'Register.html', {})
+def RegisterDecision(request):
+    if request.method == 'GET':
+        return render(request, 'RegisterDecision.html',{})
+
+def fingerRegister(request):
+    if request.method == 'GET':
+        return render(request, 'fingerRegister.html',{})
+
+def register_finger(request):
+    if request.method == 'POST':
+        username = request.POST.get('username', None)
+        password = request.POST.get('password', None)
+        contact = request.POST.get('contact', None)
+        email = request.POST.get('email', None)
+        address = request.POST.get('address', None)
+        file = request.FILES.get('file_upload', None)
+        
+        if not all([username, password, contact, email, address, file]):
+            context = {'data': 'All fields are required'}
+            return render(request, 'fingerRegister.html', context)
+        
+        # Save the file
+        file_path = default_storage.save(f'image/static/fingerprint/{username}.png', file)
+        file_name = file.name
+        
+        # Connect to the database
+        db_connection = pymysql.connect(
+            host='127.0.0.1',
+            port=3306,
+            user='root',
+            password='12345',
+            database='facial_login',
+            charset='utf8'
+        )
+        db_cursor = db_connection.cursor()
+        
+        # Check if the user already exists in the `finger_register` table
+        check_user_query_finger_register = "SELECT COUNT(*) FROM finger_register WHERE username = %s OR email = %s"
+        db_cursor.execute(check_user_query_finger_register, (username, email))
+        user_count_finger_register = db_cursor.fetchone()[0]
+        
+        if user_count_finger_register > 0:
+            context = {'data': 'User already registered in fingerprint table'}
+        else:
+            # Check if the user exists in the other table `register`
+            check_user_query_register = "SELECT COUNT(*) FROM register WHERE username = %s"
+            db_cursor.execute(check_user_query_register, (username,))
+            user_count_register = db_cursor.fetchone()[0]
+            
+            if user_count_register > 0:
+                context = {'data': 'User already registered in another table'}
+            else:
+                # Register the new user
+                register = 'Fingerprint'
+                insert_query = "INSERT INTO finger_register (username, password, contact, email, address, image, register) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                db_cursor.execute(insert_query, (username, password, contact, email, address, file_name, register))
+                db_connection.commit()
+                
+                if db_cursor.rowcount == 1:
+                    context = {'data': 'Signup Process Completed'}
+                else:
+                    context = {'data': 'Unable to register'}
+        
+        db_cursor.close()
+        db_connection.close()
+        
+        return render(request, 'fingerRegister.html', context)
+    
+    context = {'data': 'Invalid request method'}
+    return render(request, 'fingerRegister.html', context)
+
+def preprocess_image(image_file):
+    image = Image.open(image_file)
+    image = image.convert('L')
+    image = image.resize((256, 256))
+    enhancer = ImageEnhance.Contrast(image)
+    image = enhancer.enhance(2.0)
+    image = ImageOps.autocontrast(image, cutoff=5)
+    return image
+
+def extract_features(image):
+    image_array = np.array(image)
+    return image_array.flatten()
+
+def compare_features(features1, features2):
+    distance = euclidean(features1, features2)
+    threshold = 1000
+    return distance < threshold
+
+def login_finger(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        uploaded_image = request.FILES.get('file')
+        
+        # Connect to the database
+        db_connection = pymysql.connect(host='127.0.0.1', port=3306, user='root', password='12345', database='facial_login', charset='utf8')
+        db_cursor = db_connection.cursor()
+        
+        # Check user credentials
+        check_user_query = "SELECT * FROM finger_register WHERE username = %s AND password = %s"
+        db_cursor.execute(check_user_query, (username, password))
+        user = db_cursor.fetchone()
+        
+        if user:
+            stored_image_path = f'image/static/fingerprint/{username}.png'
+            
+            if default_storage.exists(stored_image_path):
+                with default_storage.open(stored_image_path, 'rb') as stored_image_file:
+                    stored_image = preprocess_image(stored_image_file)
+                    
+                if uploaded_image:
+                    uploaded_image = preprocess_image(uploaded_image)
+                    
+                    stored_features = extract_features(stored_image)
+                    uploaded_features = extract_features(uploaded_image)
+                    
+                    if compare_features(uploaded_features, stored_features):
+                        return render(request, 'welcome.html', {'username': username})
+                    else:
+                        return render(request, 'fingerLogin.html', {'data': 'Fingerprint does not match'})
+                else:
+                    return render(request, 'fingerLogin.html', {'data': 'Uploaded image is missing'})
+            else:
+                return render(request, 'fingerLogin.html', {'data': 'User or Image not found'})
+        else:
+            return render(request, 'fingerLogin.html', {'data': 'Invalid User Login Details'})
+    
+    return render(request, 'login.html')
+
+
 
 def WebCam(request):
     if request.method == 'GET':
@@ -100,36 +242,81 @@ def Signup(request):
         return render(request, "Register.html",{'error_message':"All fields are required."})
 
       return render(request, 'CaptureFace.html', context)
+
 def AdminLogin(request):
     pass
 
 def saveSignup(request):
     if request.method == 'POST':
         global username, password, contact, email, address
+
+        # Load and process the image
         img = cv2.imread('image/static/photo/test.png')
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         face_component = None
-        faces = face_detection.detectMultiScale(gray, 1.3,5)
+        faces = face_detection.detectMultiScale(gray, 1.3, 5)
+
         for (x, y, w, h) in faces:
             face_component = img[y:y+h, x:x+w]
+
         if face_component is not None:
-            cv2.imwrite('image/static/profiles/'+username+'.png',face_component)
-            db_connection = pymysql.connect(host='127.0.0.1',port = 3306,user = 'root', password = '12345', database = 'facial_login',charset='utf8')
+            # Save the face component image
+            face_image_path = f'image/static/profiles/{username}.png'
+            cv2.imwrite(face_image_path, face_component)
+
+            # Connect to the database
+            db_connection = pymysql.connect(
+                host='127.0.0.1',
+                port=3306,
+                user='root',
+                password='12345',
+                database='facial_login',
+                charset='utf8'
+            )
             db_cursor = db_connection.cursor()
-            values = (username,password,contact, email, address)
-            student_sql_query = "INSERT INTO register(username,password,contact,email,address) VALUES ('"+username+"','"+password+"','"+contact+"','"+email+"','"+address+"')"
-            db_cursor.execute(student_sql_query)
-            db_connection.commit()
-            print(db_cursor.rowcount, "Record Inserted")
-            if db_cursor.rowcount == 1:
-                context= {'data':'Signup Process Completed'}
-                return render(request, 'Register.html', context)
+
+            # Check if the user already exists in the `register` table
+            check_user_query_register = "SELECT COUNT(*) FROM register WHERE username = %s"
+            db_cursor.execute(check_user_query_register, (username,))
+            user_count_register = db_cursor.fetchone()[0]
+
+            if user_count_register > 0:
+                context = {'data': 'User already registered through Facial'}
             else:
-                context= {'data':'Unable to detect face. Please retry'}
-                return render(request, 'Register.html', context)  
+                # Check if the user exists in the `finger_register` table
+                check_user_query_finger_register = "SELECT COUNT(*) FROM finger_register WHERE username = %s"
+                db_cursor.execute(check_user_query_finger_register, (username,))
+                user_count_finger_register = db_cursor.fetchone()[0]
+
+                if user_count_finger_register > 0:
+                    context = {'data': 'User already registered through fingerprint'}
+                else:
+                    # Insert the new user into the `register` table
+                    register = 'Facial'
+                    insert_query = """
+                        INSERT INTO register (username, password, contact, email, address, register) 
+                        VALUES (%s, %s, %s, %s, %s, %s)
+                    """
+                    db_cursor.execute(insert_query, (username, password, contact, email, address, register))
+                    db_connection.commit()
+
+                    if db_cursor.rowcount == 1:
+                        context = {'data': 'Signup Process Completed'}
+                    else:
+                        context = {'data': 'Unable to register'}
+
+            # Close the database connection
+            db_cursor.close()
+            db_connection.close()
+
+            return render(request, 'Register.html', context)
         else:
-            context= {'data':'Unable to detect face. Please retry'}
-            return render(request, 'Register.html', context)  
+            context = {'data': 'Unable to detect face or user is already registered'}
+            return render(request, 'Register.html', context)
+
+    context = {'data': 'Invalid request method'}
+    return render(request, 'Register.html', context) 
+
 def getOutput(status):
     print(status)
     
@@ -252,26 +439,40 @@ def Profile(request):
 
     images_base64 = [numpy_array_to_base64(array) for array in arrays]
 
-    # Initialize empty dictionary to store user data
+     # Initialize empty dictionary to store user data
     user_data = {}
 
-    # Fetch data from the database
     with con:
         cur = con.cursor()
-        # Adjust the SQL query to select specific fields you want to display on the profile page
+        
+        # Check in the 'register' table
         cur.execute("SELECT * FROM register WHERE username = %s", (username,))
-        row = cur.fetchone()  # Fetch a single row for the specific user
-
+        row = cur.fetchone()
+        
         if row:
-            # Assuming the register table columns are: id, username, password, email, etc.
             user_data = {
                 'username': row[0],
                 'email': row[3],  # Assuming email is in the 4th column
-                'contact':row[2],
-                'address':row[4],
-                'faces':images_base64,
-                # Add more fields as per your database schema
+                'contact': row[2],
+                'address': row[4],
+                'register': row[6],
             }
+        else:
+            # Check in the 'finger_register' table
+            cur.execute("SELECT * FROM finger_register WHERE username = %s", (username,))
+            row = cur.fetchone()
+            
+            if row:
+                user_data = {
+                    'username': row[0],
+                    'email': row[3],  # Assuming email is in the 4th column
+                    'contact': row[2],
+                    'address': row[4],
+                    'register': row[7],
+                }
+            else:
+                # User not found in either table
+                user_data = {'error': 'User not found'}
 
     # Pass the user data to the template
     context = {
@@ -366,8 +567,8 @@ def adminPage(request):
 
         try:
             db_cursor = db_connection.cursor()
-            sql_query = "SELECT * FROM register"
-            db_cursor.execute(sql_query)
+            sql_query1 = "SELECT * FROM register"
+            db_cursor.execute(sql_query1)
             rows = db_cursor.fetchall()
             products = []
             for row in rows:
@@ -378,12 +579,26 @@ def adminPage(request):
                     'email':row[3],
                     'address': row[4],
                     'id': row[5],
+                    'register':row[6]
                 })
-
-            return render(request, 'adminPage.html',{'products':products})
+            sql_query2 = "SELECT * FROM finger_register"
+            db_cursor.execute(sql_query2)
+            rows = db_cursor.fetchall()
+            users = []
+            for row in rows:
+                users.append({
+                    'id':row[0],
+                    'username': row[1],
+                    'password':row[2],
+                    'contact':row[3],
+                    'email':row[4],
+                    'address': row[5],
+                    'image': row[6],
+                    'register':row[7]
+                })
+            return render(request, 'adminPage.html',{'products':products, 'users':users})
         finally:
             db_connection.close()
-
     else:
         return render(request, 'Admin.html',{'error':"User not found"})
 
@@ -485,9 +700,18 @@ def download_file(request, file_name):
         print(f"Error decrypting file: {e}")
         raise Http404("Error decrypting file")
 
+    # Remove the first part of the filename
     base_file_name = file_name
     if file_name.endswith('.enc'):
-        base_file_name = file_name[:-4] 
+        base_file_name = file_name[:-4]  # Remove .enc extension
+
+    # Extract the actual filename by removing the first part
+    # Assuming the first part of the filename is separated by an underscore (_)
+    parts = base_file_name.split('-', 1)
+    if len(parts) > 1:
+        base_file_name = parts[1]
+    else:
+        base_file_name = parts[0]  # If no separator, use the whole base file name
 
     # Create an HTTP response with the decrypted content
     response = HttpResponse(decrypted_data, content_type='application/octet-stream')

@@ -1,127 +1,109 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Facial Authentication</title>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
- <script type="text/javascript" >
-	
-function validate(){
-	var username = document.getElementById("username").value;
-	var x=document.forms["f1"]["username"].value;
-	var y=document.forms["f1"]["password"].value;
-	var c=document.forms["f1"]["contact"].value;
-	var e=document.forms["f1"]["email"].value;
-	var a=document.forms["f1"]["address"].value;
-	var image=document.forms["f1"]["image"].value;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facial Authentication</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}"/>
+    <script type="text/javascript">
+        function validate() {
+            var docname = document.getElementById("docname").value;
+            var docdesc = document.getElementById("docdesc").value;
+            var fileInput = document.getElementById("docupload");
+            var file = fileInput.files[0];
 
-	if (username.trim() === ""){
-		alert("Username must be entered");
-		document.getElementById('username').focus();
-		return false;
-	}
-	if(x == null || x == ""){
-		alert("Username must be enter");
-		document.forms["f1"]['username'].focus();
-		return false;
-	}
-	if(y == null || y==""){
-		alert("Password must be enter");
-		document.f1.password.focus();
-		return false;
-	}
-	if(c == null || c==""){
-		alert("Contact No must be enter");
-		document.f1.contact.focus();
-		return false;
-	}
-	if(isNaN(c)){
-		alert("Please enter valid contact number");
-		document.f1.contact.focus();
-		return false;
-	}
-	if(e == null || e==""){
-		alert("Email ID must be enter");
-		document.f1.email.focus();
-		return false;
-	}
-	var filter = /^([a-zA-Z0-9_\.\-])+\@(gmail+\.)+(com)+$/;
-	if (!filter.test(e)) {
-		alert('enter a valid email address');
-		document.f1.email.focus();
-		return false;
-	}
-	if(a == null || a==""){
-		alert("Address must be enter");
-		document.f1.address.focus();
-		return false;
-	}
-	return false;
-}
-
-window.onload = function(){
-	var errorMessage = "{{ error_message|escapejs }}";
-        if (errorMessage) {
-            alert(errorMessage);
+            if (docname.trim() === "") {
+                alert("Document name must be entered");
+                document.getElementById('docname').focus();
+                return false;
+            }
+            if (docdesc.trim() === "") {
+                alert("Document description must be entered");
+                document.getElementById('docdesc').focus();
+                return false;
+            }
+            if (file) {
+                var allowedFormats = [
+                    'application/pdf',
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'text/plain'
+                ];
+                if (!allowedFormats.includes(file.type)) {
+                    alert('Invalid file format. Only PDF, DOC, DOCX, and TXT are allowed.');
+                    fileInput.focus();
+                    return false;
+                }
+            } else {
+                alert('Please upload a document.');
+                fileInput.focus();
+                return false;
+            }
+            return true;
         }
-    };
 
-</script>
+        window.onload = function() {
+            var errorMessage = "{{ error_message|escapejs }}";
+            if (errorMessage) {
+                alert(errorMessage);
+            }
+        };
+    </script>
 </head>
 <body>
-<div id="wrapper">
-		<div id="header">
-			<h1> Facial Authentication </h1>
-		</div>
-	</div>
-	<div id="menu">
-		<ul><center>
-	  <li><a href="{% url 'welcome' username=username %}">Home</a></li>
-	  <li><a href="{% url 'Profile' %}?username={{ username }}">View Profile</a></li>
-      <li><a href="{% url 'view_doc_user' username=username %}">View Document</a></li>
-	  <li><a href="{% url 'Login' %}"> Logout </a></li>
-      <li><a href="#" > {{ username }} </a></li>
-			
-	</center></ul>
-<br class="clearfix" />
-				</div>
-			<center id='img'>
-			<div id="form-container">
-			<form name="f1" method="post" onsubmit="return validate()" action="{% url 'doc_upload' %}" enctype = "multipart/form-data">
-				{% csrf_token %}
-				<h3 class="form-title">Document Upload</h3>
-				<spam style="color:red"> {{ message }}</spam>
-                <input type="hidden" name="username" id = "username" value="{{ username }}">
-				<center><span class="error-message">{{ data }}</span></center>
-				<table align="center" width="80%">
-					<tr>
-						<td><label for="docname" class="form-label" >Doc Name</label></td>
-						<td><input type="text" name="docname" id="docname" class="input-field" /></td>
-					</tr>
-					<tr>
-						<td><label for="docdesc" class="form-label">Doc Desc</label></td>
-						<td><input type="text" name="docdesc" id="password" class="input-field" /></td>
-					</tr>
-					<tr>
-						<td><label for="document" class="form-label">Upload Document (doc,docx,pdf,txt)</label></td>
-						<td><input type="file" name="docupload" id="docupload" class="input-field", accept= ".pdf,.doc,.docx,.txt"/></td>
-					</tr>
-					<tr>
-						<td><label for="Description" class="form-label">Encrypted</label></td>
-						<td><textarea type="text" name="text" id="text" class="input-field"/> {{ enc }} </textarea></td>
-					</tr>
-					<tr>
-						<td></td>
-						<td><input type="submit" value="Upload" class="submit-button"></td>
-					</tr>
-				</table>
-			</form>
-		</div>
-	</center>
-	</div>
-	<div id="footer">
-		<p>&copy; 2024 Your Company. All Rights Reserved.</p>
-	</div>
-	</body>
+    <div id="wrapper">
+        <div id="header">
+            <h1>Facial Authentication</h1>
+        </div>
+    </div>
+    <div id="menu">
+        <ul>
+            <center>
+                <li><a href="{% url 'welcome' username=username %}">Home</a></li>
+                <li><a href="{% url 'Profile' %}?username={{ username }}">View Profile</a></li>
+                <li><a href="{% url 'view_doc_user' username=username %}">View Document</a></li>
+                <li><a href="{% url 'LoginDecision' %}">Logout</a></li>
+                <li id="logo"><a href="#"> {{ username }} </a></li>
+            </center>
+        </ul>
+        <br class="clearfix" />
+    </div>
+    <center id='img'>
+        <div id="form-container-register">
+            <form name="f1" method="post" onsubmit="return validate()" action="{% url 'doc_upload' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <h3 class="form-title">Document Upload</h3>
+                <span style="color:red"> {{ message }}</span>
+                <input type="hidden" name="username" id="username" value="{{ username }}">
+                <center><span class="error-message">{{ data }}</span></center>
+                <table align="center" width="80%">
+                    <tr>
+                        <td><label for="docname" class="form-label">Doc Name</label></td>
+                        <td><input type="text" name="docname" id="docname" class="input-field" required/></td>
+                    </tr>
+                    <tr>
+                        <td><label for="docdesc" class="form-label">Doc Desc</label></td>
+                        <td><input type="text" name="docdesc" id="docdesc" class="input-field" required/></td>
+                    </tr>
+                    <tr>
+                        <td><label for="docupload" class="form-label">Upload Document (doc, docx, pdf, txt)</label></td>
+                        <td><input type="file" name="docupload" id="docupload" class="input-field" accept=".pdf,.doc,.docx,.txt" required/></td>
+                    </tr>
+                    <tr>
+                        <td><label for="text" class="form-label">Encrypted</label></td>
+                        <td><textarea name="text" id="text" class="input-field">{{ enc }}</textarea></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="submit" value="Upload" class="submit-button"></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </center>
+    <div id="footer">
+        <p>&copy; 2024 Your Company. All Rights Reserved.</p>
+    </div>
+</body>
 </html>
