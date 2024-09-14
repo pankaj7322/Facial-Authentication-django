@@ -39,7 +39,7 @@
 	<div id = 'splash'>
 		
         <table border='1'>
-            {% if products %}
+            {% if products or users %}
             <h6>Registered Users</h6>
             <thead>
                 <tr>
@@ -53,31 +53,33 @@
                 </tr>
             </thead>
             <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>{{ product.id }}</td>
-                    <td>{{ product.username }}</td>
-                    <td>{{ product.password }}</td>
-                    <td>{{ product.contact }}</td>
-                    <td>{{ product.email }}</td>
-                    <td>{{ product.address }}</td>
-                    <td>{{ product.register }}</td>
-                    
-                </tr>
-                {% endfor %}
-                {% for user in users %}
-                <tr>
-                    <td>{{ user.id }}</td>
-                    <td>{{ user.username }}</td>
-                    <td>{{ user.password }}</td>
-                    <td>{{ user.contact }}</td>
-                    <td>{{ user.email }}</td>
-                    <td>{{ user.address }}</td>
-                    <td>{{ user.register }}</td>
-                    
-                </tr>
-                {% endfor %}
+                {% if products %}
+                    {% for product in products %}
+                    <tr>
+                        <td>{{ product.id }}</td>
+                        <td>{{ product.username }}</td>
+                        <td>{{ product.password }}</td>
+                        <td>{{ product.contact }}</td>
+                        <td>{{ product.email }}</td>
+                        <td>{{ product.address }}</td>
+                        <td>{{ product.register }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
 
+                {% if users %}
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.password }}</td>
+                        <td>{{ user.contact }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.address }}</td>
+                        <td>{{ user.register }}</td>    
+                    </tr>
+                    {% endfor %}
+                {% endif %}
             </tbody>
             {% elif data_upload %}
             <h6>All Uploaded Data </h6>

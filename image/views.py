@@ -6,6 +6,7 @@ from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404
 import pymysql
 import imagehash
+import hashlib
 from urllib.parse import unquote
 from django.http import HttpResponse,HttpResponseBadRequest
 from django.core.files.storage import FileSystemStorage
@@ -464,10 +465,10 @@ def Profile(request):
             
             if row:
                 user_data = {
-                    'username': row[0],
-                    'email': row[3],  # Assuming email is in the 4th column
-                    'contact': row[2],
-                    'address': row[4],
+                    'username': row[1],
+                    'email': row[4],  # Assuming email is in the 4th column
+                    'contact': row[3],
+                    'address': row[5],
                     'register': row[7],
                 }
             else:
