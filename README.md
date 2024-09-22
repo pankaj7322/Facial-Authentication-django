@@ -31,3 +31,4 @@ pip install -r requirements.txt
 python manage.py runserver
 ```
 ![Image](img/Screenshot1.png)
+
