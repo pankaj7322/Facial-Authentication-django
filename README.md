@@ -14,7 +14,7 @@ This project implements a facial authentication system using Django, OpenCV, and
 - Python 3.x
 - Django
 - OpenCV
-- MySQL (password should be change on view.py and settings.py file)
+- MySQL 
 - `cryptography` package
 - `PIL` (Pillow) package
 
@@ -30,6 +30,6 @@ env\Scripts\activate (optional)
 pip install -r requirements.txt
 python manage.py runserver
 ```
-
+(password should be change on view.py and settings.py file)
 ![Image](img/Screenshot1.png)
 
